@@ -9,7 +9,7 @@ See instructions. Delete this line and place the Product Vision Statement here.
 
 ## User stories
 
-See instructions. Delete this line and place a link to the user stories here.
+* [Issues Page](https://github.com/software-students-fall2022/web-app-exercise-team-6-1/issues)
 
 ## Task boards
 
