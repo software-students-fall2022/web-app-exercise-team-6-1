@@ -9,10 +9,14 @@
 
     <body>
         <div>
-            <h1>New Music Record Details</h1>
+            <div id="return"><a id="arrow" href="home.html">&#8592;</a></div>
 
-            <form action="" method="post">
+            <h1>New Music Record Details</h1>
             
+            <!-- TODO: The action and method should be changed, since we need the data inside the db. -->
+            <!-- <form action="" method="post"> -->
+            <form action="./home.html" method="get">
+
                 <label>
                     Title:
                     <input type="text" name="title" value="" required
@@ -21,19 +25,19 @@
 
                 <label>
                     Songwriters:
-                    <textarea type="text" name="writers" rows="3"
+                    <textarea type="text" name="writers" rows="5"
                     placeholder="Each line is a writer..."></textarea>
                 </label>
 
                 <label>
                     Producers:
-                    <textarea type="text" name="producers" rows="3"
+                    <textarea type="text" name="producers" rows="5"
                     placeholder="Each line is a producer..."></textarea>
                 </label>
 
                 <label>
                     Genres:
-                    <textarea type="text" name="genres" rows="3"
+                    <textarea type="text" name="genres" rows="5"
                     placeholder="Each line is a genre..."></textarea>
                 </label>
 
@@ -44,7 +48,7 @@
 
                 <label>
                     Lyrics:
-                    <textarea type="text" name="lyrics" rows="3"
+                    <textarea type="text" name="lyrics" rows="20"
                     placeholder="Input lyrics here..."></textarea>
                 </label>
 

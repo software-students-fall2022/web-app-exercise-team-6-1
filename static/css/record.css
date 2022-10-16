@@ -31,7 +31,7 @@ label > textarea {
 }
 
 #time {
-    width: 55%;
+    width: 65%;
     text-align: end;
 }
 #time > input[type="number"] {

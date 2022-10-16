@@ -1,22 +1,41 @@
 
-
+/*This may or may not have any effect*/
 html {
     overflow: scroll;
 }
 
+/*This is the dimensions of the mobile device*/
 body {
     width: 414px;
     height: 896px;
+    position: relative;
 }
+
+/*This colors the background of the iphone and adds some padding,
+so that the content could be displayed better.*/
 body > div {
-    width: 100%;
-    min-height: 100%;
-    padding: 5px;
+    width: calc(100% - 20px);
+    min-height: calc(100% - 20px);
     border-radius: 5px;
+    padding: 10px;
     background-color: lightblue;
 }
 
+/*Set default style for all input and textarea fields.*/
 input, textarea {
     border-radius: 5px;
     border-style: solid;
+}
+
+/*This styles the button to return to previous screen.*/
+#arrow {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 30px;
+    width: 30px;
+    background-color: #bbb;
+    border-radius: 50%;
+    text-decoration: none;
+    cursor: pointer;
 }
