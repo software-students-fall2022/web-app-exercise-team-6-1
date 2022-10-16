@@ -14,3 +14,9 @@ A little exercise to build a web application following an agile development proc
 ## Task boards
 
 * [Sprint 1](https://github.com/orgs/software-students-fall2022/projects/15)
+
+---
+
+## Miscellaneous
+
+* [Daily Standup Discord Posts](https://discord.com/channels/1014892538601152572/1031265004298715276)
