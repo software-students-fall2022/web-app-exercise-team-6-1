@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<!-- This is a basic outline. -->
+<html>
+
+    <head>
+        <title>Home</title>
+        <link rel="stylesheet" href="../css/general.css">
+        <link rel="stylesheet" href="../css/record.css">
+    </head>
+
+    <body>
+        <div>
+            <h1>Delete Reason</h1>
+
+            <form action="deleteRecord" method="post">
+                <input type="hidden" name="deleteId" value="">
+
+                <label>
+                    What is your reason for deleting?
+                    <textarea type="text" name="reason" rows="5" minlength="20"></textarea>
+                </label>
+
+                <input type="submit" value="Delete">
+            </form>
+        </div>
+    </body>
+
+    <script defer>
+        const param = window.location.search.slice(1).split('#')[0].split('&');
+        const id = param[0].split('=');
+        if (id[0] !== 'id') {
+            console.log('invalid query');
+        } else {
+            document.querySelector('input[name="deleteId"]').value = id[1];
+        }
+
+    </script>
+</html>
