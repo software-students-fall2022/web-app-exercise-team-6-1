@@ -1,0 +1,41 @@
+/* 
+This css file is used by: 
+    newRecord.html
+    updateRecord.html
+*/
+
+h1 {
+    text-align: center;
+}
+
+form {
+    padding: 5px;
+    display: flex;
+    flex-direction: column;
+    row-gap: 5px;
+    justify-content: center;
+    align-items: center;
+}
+
+label {
+    width: 80%;
+    display: flex;
+    justify-content: space-between;
+}
+label > input {
+    width: 50%;
+}
+label > textarea {
+    width: 50%;
+    resize: vertical;
+}
+
+#time {
+    width: 55%;
+    text-align: end;
+}
+#time > input[type="number"] {
+    width: 20%;
+}
+
+
