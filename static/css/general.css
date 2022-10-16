@@ -1,0 +1,22 @@
+
+
+html {
+    overflow: scroll;
+}
+
+body {
+    width: 414px;
+    height: 896px;
+}
+body > div {
+    width: 100%;
+    min-height: 100%;
+    padding: 5px;
+    border-radius: 5px;
+    background-color: lightblue;
+}
+
+input, textarea {
+    border-radius: 5px;
+    border-style: solid;
+}
