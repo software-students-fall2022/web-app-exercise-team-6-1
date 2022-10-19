@@ -1,0 +1,10 @@
+<form action="{{ form.action }}" method="post">
+    <input type="hidden" name="deleteId" value="{{ form.deleteId }}">
+
+    <label>
+        What is your reason for deleting?
+        <textarea type="text" name="reason" rows="5" minlength="10" required></textarea>
+    </label>
+
+    <input type="submit" value="Delete">
+</form>
