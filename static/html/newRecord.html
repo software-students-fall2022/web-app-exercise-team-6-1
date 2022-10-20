@@ -14,6 +14,60 @@
 
             <h1>New Music Record Details</h1>
             
+            <form action="./newRecord" method="post">
+
+                <label>
+                    Title:
+                    <input type="text" name="title" value="" required
+                    placeholder="Music Title">
+                </label>
+
+                <label>
+                    Songwriters:
+                    <textarea type="text" name="writers" rows="5"
+                    placeholder="Each line is a writer..."></textarea>
+                </label>
+
+                <label>
+                    Producers:
+                    <textarea type="text" name="producers" rows="5"
+                    placeholder="Each line is a producer..."></textarea>
+                </label>
+
+                <label>
+                    Genres:
+                    <textarea type="text" name="genres" rows="5"
+                    placeholder="Each line is a genre..."></textarea>
+                </label>
+
+                <label>
+                    Release Date:
+                    <input type="date" name="releaseDate" value="">
+                </label>
+
+                <label>
+                    Lyrics:
+                    <textarea type="text" name="lyrics" rows="20"
+                    placeholder="Input lyrics here..."></textarea>
+                </label>
+
+                <label id="songLength">
+                    <div>
+                        Length of Song:
+                    </div>
+                    <div id="time">
+                        <input type="number" step="1" name="songHours" 
+                        value="" min="0" max="99"> h
+                        <input type="number" step="1" name="songMinutes"
+                        value="" min="0" max="59"> m
+                        <input type="number" step="1" name="songSeconds"
+                        value="" min="0" max="59"> s
+                    </div>
+                </label>
+
+                <input type="submit" value="Submit">
+
+            </form>
         </div>
     </body>
 </html>
