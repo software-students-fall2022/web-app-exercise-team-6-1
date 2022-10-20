@@ -1,0 +1,18 @@
+{% extends '_base.html' %} 
+
+{% block head %}
+    <title>Error</title>
+{% endblock %}
+
+{% block header %}
+    <h1>Uh oh!</h1>
+{% endblock %}
+
+{% block content %}
+    <p>
+        Unfortunately, it seems that we have encountered an error... and here it is:
+    </p>
+    <code>
+        {{error}}
+    </code>
+{% endblock %}

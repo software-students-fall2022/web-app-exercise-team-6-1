@@ -1,0 +1,29 @@
+{% extends '_base.html' %}
+
+{% block head %}
+    <title>Music Record Details</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/details.css') }}">
+{% endblock %}
+
+{% block header %}
+    <h1>Music Record Details</h1>
+{% endblock %}
+
+{% block content %}
+    {% if exists == True %}
+        <header>
+            <nav>
+                <a href="{{ url_for('updateRecord')}}">Update</a>
+                <a href="{{ url_for('deleteRecord')}}">Delete</a>
+            </nav>
+        </header>
+        <hr>
+        <section>
+            {% include '_musicDetails.html' %}
+        </section>
+    {% else %}
+        <h2>Not Found</h2>
+        <p>The music record either does not exist, or has been removed by a user.</p>
+    {% endif %}
+{% endblock %}
+
