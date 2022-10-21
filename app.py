@@ -35,6 +35,28 @@ except Exception as e:
     print(' *', "Failed to connect to MongoDB at", config['MONGO_URI'])
     print('Database connection error:', e) # debug
 
+
+#I think that for the update, search, and delete, you could try adding the query, or something to represent
+#Thus, make a speciailzed nav for each method that needs it.
+nav = {
+    'home': '/',
+    'add': '/addRecord',
+    'search': '/searchRecord',
+    # 'update': '/updateRecord',
+    # 'delete': '/deleteRecord',
+}
+#Example below. Basically, for the musicRecord.html, you can construct the nav object like this:
+newnav = {
+    'home': '/',
+    'add': '/addRecord',
+    'search': '/searchRecord?query=2022%20Dancing',
+    #When the user clicks on the update link, it will redirect to the /updateRecord method on app.py. Then you can
+    #  take the mongoId and place it in the hidden field of the form.
+    'update': '/updateRecord?mongoId=14268493482392',
+    'delete': '/deleteRecord?mongoId=12987502392839',
+}
+
+
 # set up the routes
 
 # route for the home page
@@ -43,8 +65,9 @@ def home():
     """
     Route for the home page
     """
+    
     # docs = db.exampleapp.find({}).sort("created_at", -1) # sort in descending order of created_at timestamp
-    return render_template('home.html') # render the hone template
+    return render_template('home.html', nav=nav) # render the hone template
 
 @app.route('/addRecord')
 def addRecord():
@@ -67,7 +90,7 @@ def addRecord():
     # }
     # #Let form=obj and the updateRecord.html page should render properly
 
-    return render_template('addRecord.html', form={'action': url_for('postRecord')})
+    return render_template('addRecord.html', form={'action': url_for('postRecord')}, nav=nav)
 
 @app.route('/', methods=['POST'])
 def postRecord():
@@ -77,7 +100,7 @@ def postRecord():
 
 @app.route('/searchRecord')
 def searchRecord():
-    return render_template('searchRecord.html')
+    return render_template('searchRecord.html', nav=nav)
 
 @app.route('/musicRecord')
 def musicRecord():
@@ -85,7 +108,7 @@ def musicRecord():
     
     #Test this, comment one and uncomment the other one
     # return render_template('musicRecord.html', exists=False)
-    return render_template('musicRecord.html', exists=True)
+    return render_template('musicRecord.html', exists=True, nav=newnav)
 
 @app.route('/updateRecord')
 def updateRecord():
@@ -103,9 +126,9 @@ def updateRecord():
         #Note: postRecord refers to the method name, not the url path.
         'action': url_for('postUpdateRecord')
     }
-    return render_template('updateRecord.html', form=obj)
+    return render_template('updateRecord.html', form=obj, nav=nav)
 
-@app.route('/updateRecords', methods=['POST'])
+@app.route('/updateRecord', methods=['POST'])
 def postUpdateRecord():
     print("Entered postUpdateRecord")
     return redirect(url_for('musicRecord'))
@@ -115,7 +138,7 @@ def deleteRecord():
     return render_template('deleteRecord.html', form={
         'action': url_for('postDeleteRecord'),
         'deleteId': 'mongodb id',
-    })
+    }, nav=nav)
 
 @app.route('/deleteRecord', methods=['POST'])
 def postDeleteRecord():
@@ -198,7 +221,7 @@ def handle_error(e):
     """
     Output any errors - good for debugging.
     """
-    return render_template('error.html', error=e) # render the edit template
+    return render_template('error.html', error=e, nav=nav) # render the edit template
 
 
 # run the app
@@ -206,3 +229,5 @@ if __name__ == "__main__":
     #import logging
     #logging.basicConfig(filename='/home/ak8257/error.log',level=logging.DEBUG)
     app.run(debug = True)
+    
+
