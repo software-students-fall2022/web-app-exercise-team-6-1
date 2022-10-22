@@ -43,10 +43,15 @@ nav = {
     'add': '/addRecord',
     'search': '/searchRecord',
     # 'update': '/updateRecord',
-    # 'delete': '/deleteRecord',
+    # 'de   lete': '/deleteRecord',
 }
 #Example below. Basically, for the musicRecord.html, you can construct the nav object like this:
 newnav = {
+
+    # From James
+    # Any post request URL should not include any arguments
+    # They should be included in the body section and sent along with the request
+
     'home': '/',
     'add': '/addRecord',
     'search': '/searchRecord?query=2022%20Dancing',
@@ -98,8 +103,6 @@ def addRecord():
 
 @app.route('/addRecord', methods=['POST'])
 def postRecord():
-    #print("Entered post record method?")
-    #print(request.form)
 
     title = request.form['title']
 
