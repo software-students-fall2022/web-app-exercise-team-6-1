@@ -161,6 +161,10 @@ def postRecord():
 
 @app.route('/searchRecord')
 def searchRecord():
+
+    #Idea used to check that songs are being added to the db:
+    # Print each song's title, author as a list to the webpage 
+    # Temporary, just to ensure that db operations are working as intended
     return render_template('searchRecord.html', nav=nav)
 
 @app.route('/musicRecord')
@@ -179,7 +183,7 @@ def updateRecord():
         'producers': 'prod1\nprod2',
         'genres': 'genre1\ngenre2',
         'releaseDate': "01-30-2022",
-        'lyrics': "ldsfla;sflsj dlsfjl",
+        'lyrics': "Sample Lyrics Here",
         'songHours': None,
         'songMinutes': None,
         'songSeconds': 10,
