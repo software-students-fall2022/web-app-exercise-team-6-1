@@ -161,7 +161,7 @@ def musicRecord():
     # return render_template('musicRecord.html', exists=False)
     return render_template('musicRecord.html', exists=True, nav=newnav)
 
-@app.route('/updateRecord')
+@app.route('/update', methods=['GET'])
 def updateRecord():
     obj = {
         'title': 'yes',
@@ -179,25 +179,22 @@ def updateRecord():
     }
     return render_template('updateRecord.html', form=obj, nav=nav)
 
-@app.route('/updateRecord', methods=['POST'])
+@app.route('/update', methods=['POST'])
 def postUpdateRecord():
     print("Entered postUpdateRecord")
     return redirect(url_for('musicRecord'))
 
-@app.route('/deleteRecord')
+@app.route('/delete', methods=['GET'])
 def deleteRecord():
     return render_template('deleteRecord.html', form={
         'action': url_for('postDeleteRecord'),
         'deleteId': 'mongodb id',
     }, nav=nav)
 
-@app.route('/deleteRecord', methods=['POST'])
+@app.route('/delete', methods=['POST'])
 def postDeleteRecord():
-    print("Positng delete record")
+
     return redirect(url_for('musicRecord'))
-
-
-
 # # route to accept form submission and create a new post
 # @app.route('/create', methods=['POST'])
 # def create_post():
