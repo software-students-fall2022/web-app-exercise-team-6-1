@@ -43,7 +43,7 @@ nav = {
     'add': '/addRecord',
     'search': '/searchRecord',
     # 'update': '/updateRecord',
-    # 'delete': '/deleteRecord',
+    'delete': '/deleteRecord',
 }
 #Example below. Basically, for the musicRecord.html, you can construct the nav object like this:
 newnav = {
@@ -55,27 +55,6 @@ newnav = {
     'update': '/updateRecord?mongoId=14268493482392',
     'delete': '/deleteRecord?mongoId=12987502392839',
 }
-
-#To Do: Make a db where we can collectively store songs, instead of doing it locally
-# Method to create a songs collection if it doesn't exist already
-# Note: In order for a collection to 'exist', it must have atleast one record in it
-# Therefore, we will instantiate every collection with atleast one song
-if not ("songs" in db.list_collection_names()):
-        dummy_song = {
-             "title": "Never Gonna Give You Up",
-            "writers": "Rick Astley",
-            "producers": "Stock Aitken Waterman",
-            "genres": "Pop",
-            "Release Date": "1987",
-            "Song Hours": 0,
-            "Song Minutes": 3,
-            "Song Seconds": 25,
-            "Links": "https://youtu.be/dQw4w9WgXcQ",
-            "lyrics": "Never gonna give you up, never gonna let you down..."
-            }
-        db.songs.insert_one(dummy_song)
-# We should replace the above once we have a working db with songs already populating it
-
 
 
 # set up the routes
@@ -195,8 +174,20 @@ def updateRecord():
 
 @app.route('/updateRecord', methods=['POST'])
 def postUpdateRecord():
-    print("Entered postUpdateRecord")
+
     return redirect(url_for('musicRecord'))
+
+@app.route('/records', methods=['GET'])
+def getRecords():
+    """
+    Route for the records page
+    """
+    docs = db.songs.find({}).sort("title", 1) # sort in descending order of created_at timestamp
+    # iterate through docs and print title
+    for doc in docs:
+        print(doc['title'])
+    return "records"
+
 
 @app.route('/deleteRecord')
 def deleteRecord():
@@ -210,6 +201,18 @@ def postDeleteRecord():
     print("Positng delete record")
     return redirect(url_for('musicRecord'))
 
+@app.route('/deleteRecord/<title>', methods=['DELETE'])
+def delete(title):
+    print("Deleting record id: " + title)
+
+    try:   # delete the record with the given title from the database
+         db.songs.delete_one({'title': title})
+
+    except Exception as e:
+        print(' *', "Failed to delete record with title: " + title)
+        print("\n" + e)
+
+    return "Deleted record id: " + title
 
 
 # # route to accept form submission and create a new post
