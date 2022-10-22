@@ -56,6 +56,27 @@ newnav = {
     'delete': '/deleteRecord?mongoId=12987502392839',
 }
 
+#To Do: Make a db where we can collectively store songs, instead of doing it locally
+# Method to create a songs collection if it doesn't exist already
+# Note: In order for a collection to 'exist', it must have atleast one record in it
+# Therefore, we will instantiate every collection with atleast one song
+if not ("songs" in db.list_collection_names()):
+        dummy_song = {
+             "title": "Never Gonna Give You Up",
+            "writers": "Rick Astley",
+            "producers": "Stock Aitken Waterman",
+            "genres": "Pop",
+            "Release Date": "1987",
+            "Song Hours": 0,
+            "Song Minutes": 3,
+            "Song Seconds": 25,
+            "Links": "https://youtu.be/dQw4w9WgXcQ",
+            "lyrics": "Never gonna give you up, never gonna let you down..."
+            }
+        db.songs.insert_one(dummy_song)
+# We should replace the above once we have a working db with songs already populating it
+
+
 
 # set up the routes
 
@@ -98,31 +119,44 @@ def postRecord():
     #print(request.form)
 
     title = request.form['title']
-    writers = request.form['writers']
-    producers = request.form['producers']
-    genres = request.form['genres']
-    release_date = request.form['releaseDate']
-    song_hours = request.form['songHours']
-    song_minutes = request.form['songMinutes']
-    song_seconds = request.form['songSeconds']
-    links = request.form['links']
-    lyrics = request.form['lyrics']
 
-    new_record = {
-        "title": title,
-        "writers": writers,
-        "producers": producers,
-        "genres": genres,
-        "Release Date": release_date,
-        "Song Hours": song_hours,
-        "Song Minutes": song_minutes,
-        "Song Seconds": song_seconds,
-        "Links": links,
-        "lyrics": lyrics
-    }
+    #To Do (Time permitting): Make a more robust way of searching for duplicates
+    num_dupe = db.songs.count_documents({"title": title})
 
-    db.songs.insert_one(new_record) #Collection within our database will be called songs from now on
-    print("Inserted a new song!")
+    if num_dupe >= 1:
+        print("DUPLICATE SONG FOUND, not adding to db")
+
+        #Until we work out another way to deal with duplicate songs,
+        # I will just route to home page
+        # Perhaps we can route to the corresponding page for
+        # Update/Delete?
+
+    else:
+        writers = request.form['writers']
+        producers = request.form['producers']
+        genres = request.form['genres']
+        release_date = request.form['releaseDate']
+        song_hours = request.form['songHours']
+        song_minutes = request.form['songMinutes']
+        song_seconds = request.form['songSeconds']
+        links = request.form['links']
+        lyrics = request.form['lyrics']
+
+        new_record = {
+            "title": title,
+            "writers": writers,
+            "producers": producers,
+            "genres": genres,
+            "Release Date": release_date,
+            "Song Hours": song_hours,
+            "Song Minutes": song_minutes,
+            "Song Seconds": song_seconds,
+            "Links": links,
+            "lyrics": lyrics
+        }
+
+        db.songs.insert_one(new_record) #Collection within our database will be called songs from now on
+        print("Inserted a new song called: ", new_record['title'])
     return redirect(url_for('home'))
 
 @app.route('/searchRecord')
