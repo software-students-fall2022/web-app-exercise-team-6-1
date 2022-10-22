@@ -138,7 +138,7 @@ def postRecord():
         print("Inserted a new song called: ", new_record['title'])
     return redirect(url_for('home'))
 
-@app.route('/search/<title>')
+@app.route('/searchByTitle/<title>')
 def searchByTitle(title):
 
     #Idea used to check that songs are being added to the db:
@@ -153,6 +153,22 @@ def searchByTitle(title):
     print("Printing songs with title: ", title)
 
     return songs[0]['title']
+
+@app.route('/searchByAuthor/<author>')
+def searchByAuthor(author):
+
+    songs = db.songs.find({"writers": author})
+
+    if (songs.count() == 0):
+        return "No songs found with that author"
+
+    print(author + " wrote following songs: \n")
+
+    for song in songs:
+
+        print(song['title'])
+
+    return song['writers']
 
 @app.route('/musicRecord')
 def musicRecord():
