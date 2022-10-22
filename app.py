@@ -94,8 +94,35 @@ def addRecord():
 
 @app.route('/', methods=['POST'])
 def postRecord():
-    print("Entered post record method?")
-    print(request.form)
+    #print("Entered post record method?")
+    #print(request.form)
+
+    title = request.form['title']
+    writers = request.form['writers']
+    producers = request.form['producers']
+    genres = request.form['genres']
+    release_date = request.form['releaseDate']
+    song_hours = request.form['songHours']
+    song_minutes = request.form['songMinutes']
+    song_seconds = request.form['songSeconds']
+    links = request.form['links']
+    lyrics = request.form['lyrics']
+
+    new_record = {
+        "title": title,
+        "writers": writers,
+        "producers": producers,
+        "genres": genres,
+        "Release Date": release_date,
+        "Song Hours": song_hours,
+        "Song Minutes": song_minutes,
+        "Song Seconds": song_seconds,
+        "Links": links,
+        "lyrics": lyrics
+    }
+
+    db.songs.insert_one(new_record) #Collection within our database will be called songs from now on
+    print("Inserted a new song!")
     return redirect(url_for('home'))
 
 @app.route('/searchRecord')
