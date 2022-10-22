@@ -182,11 +182,27 @@ def getRecords():
     """
     Route for the records page
     """
-    docs = db.songs.find({}).sort("title", 1) # sort in descending order of created_at timestamp
-    # iterate through docs and print title
+
+    docs = db.songs.find({}).sort("title", 1)  # sort in ascending alphabetical order of title
+    # convert the cursor to dictionary
     for doc in docs:
-        print(doc['title'])
-    return "records"
+
+        response = {
+            'title': doc['title'],
+            'writers': doc['writers'],
+            'producers': doc['producers'],
+            'genres': doc['genres'],
+            'releaseDate': doc['Release Date'],
+            'lyrics': doc['lyrics'],
+            'songHours': doc['Song Hours'],
+            'songMinutes': doc['Song Minutes'],
+            'songSeconds': doc['Song Seconds'],
+            'links': doc['Links']
+        }
+
+        print(response)
+
+    return response
 
 
 @app.route('/deleteRecord')
