@@ -90,30 +90,13 @@ def home():
     # docs = db.exampleapp.find({}).sort("created_at", -1) # sort in descending order of created_at timestamp
     return render_template('home.html', nav=nav) # render the hone template
 
-@app.route('/addRecord')
+@app.route('/addRecord', methods=['GET'])
 def addRecord():
     print("Rendering record page")
 
-    # #This commented out section is for updateRecord.html
-    # obj = {
-    #     'title': 'yes',
-    #     'writers': 'writer1\nwriter2',
-    #     'producers': 'prod1\nprod2',
-    #     'genres': 'genre1\ngenre2',
-    #     'releaseDate': "01-30-2022",
-    #     'lyrics': "ldsfla;sflsj dlsfjl",
-    #     'songHours': None,
-    #     'songMinutes': None,
-    #     'songSeconds': 10,
-    #     #This action parameter is where the submission of the form will redirect to.
-    #     #Note: postRecord refers to the method name, not the url path.
-    #     'action': url_for('postRecord')
-    # }
-    # #Let form=obj and the updateRecord.html page should render properly
-
     return render_template('addRecord.html', form={'action': url_for('postRecord')}, nav=nav)
 
-@app.route('/', methods=['POST'])
+@app.route('/addRecord', methods=['POST'])
 def postRecord():
     #print("Entered post record method?")
     #print(request.form)
@@ -156,13 +139,13 @@ def postRecord():
         }
 
         db.songs.insert_one(new_record) #Collection within our database will be called songs from now on
-        print("Inserted a new song called: ", new_record['title'])
+        print(new_record)
     return redirect(url_for('home'))
 
 @app.route('/searchRecord')
 def searchRecord():
 
-    #Idea used to check that songs are being added to the db:
+    # Idea used to check that songs are being added to the db:
     # Print each song's title, author as a list to the webpage 
     # Temporary, just to ensure that db operations are working as intended
     return render_template('searchRecord.html', nav=nav)
