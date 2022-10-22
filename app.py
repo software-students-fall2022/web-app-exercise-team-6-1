@@ -138,13 +138,21 @@ def postRecord():
         print("Inserted a new song called: ", new_record['title'])
     return redirect(url_for('home'))
 
-@app.route('/searchRecord')
-def searchRecord():
+@app.route('/search/<title>')
+def searchByTitle(title):
 
     #Idea used to check that songs are being added to the db:
     # Print each song's title, author as a list to the webpage 
     # Temporary, just to ensure that db operations are working as intended
-    return render_template('searchRecord.html', nav=nav)
+
+    songs = db.songs.find({"title": title})
+
+    if (songs.count() == 0):
+        return "No songs found with that title"
+
+    print("Printing songs with title: ", title)
+
+    return songs[0]['title']
 
 @app.route('/musicRecord')
 def musicRecord():
@@ -154,18 +162,19 @@ def musicRecord():
     # return render_template('musicRecord.html', exists=False)
     return render_template('musicRecord.html', exists=True, nav=newnav)
 
-@app.route('/updateRecord')
-def updateRecord():
+@app.route('/updateRecord/<mongoId>')
+def updateRecord(mongoId):
+    docs = db.songs.find_one({"_id": ObjectId(mongoId)})
     obj = {
-        'title': 'yes',
-        'writers': 'writer1\nwriter2',
-        'producers': 'prod1\nprod2',
-        'genres': 'genre1\ngenre2',
-        'releaseDate': "01-30-2022",
-        'lyrics': "Sample Lyrics Here",
-        'songHours': None,
-        'songMinutes': None,
-        'songSeconds': 10,
+        'title': docs['title'],
+        'writers': docs['writers'],
+        'producers': docs['producers'],
+        'genres': docs['genres'],
+        'releaseDate': docs['Release Date'],
+        'lyrics': docs['lyrics'],
+        'songHours': docs['Song Hours'],
+        'songMinutes': docs['Song Minutes'],
+        'songSeconds': docs['Song Seconds'],
         #This action parameter is where the submission of the form will redirect to.
         #Note: postRecord refers to the method name, not the url path.
         'action': url_for('postUpdateRecord')
