@@ -2,7 +2,8 @@
 
 {% block head %}
     <title>Search Music Records</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/search.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/form.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/results.css') }}">
 {% endblock %}
 
 {% block header %}
@@ -10,21 +11,9 @@
 {% endblock %}
 
 {% block content %}
-    <!-- <p>
-        In progress. This page should show a list of music records.
-        {% block results %} {% endblock %}
-    </p> -->
-    
-    {% for doc in docs%}
 
-        <p class="record">
-            <a href="{{ url_for('renderMusicRecord') }}">{{doc.title}} by {{ doc.writers }}</a>
-        </p>    
+    {% include '_searchForm.html' %}
 
-    {% endfor %}
-    
-    <!-- <p>
-        Then, when the user clicks on a record, we go to this 
-        <a href="{{ url_for('musicRecord') }}">link</a>.
-    </p> -->
+    {% include '_searchResults.html' %}
+
 {% endblock %}
