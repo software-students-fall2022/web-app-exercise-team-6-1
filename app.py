@@ -211,7 +211,7 @@ def postDeleteRecord():
 def renderSearchRecord():
     title = request.args.get('title')
     writer = request.args.get('writer')
-    producer = request.args.get('producer')
+    year = request.args.get('year')
     if title != None and len(title) != 0:
         docs = db.songs.find({
             'title': title,
@@ -224,9 +224,10 @@ def renderSearchRecord():
         parsed += [doc]
     if (writer != None and writer != ""):
         parsed = [doc for doc in parsed if writer in doc['writers']]
-    if (producer != None and producer != ""):
-        parsed = [doc for doc in parsed if writer in doc['producers']]
-    
+    if (year != None and year != ""):
+        parsed = [doc for doc in parsed if year == doc['releaseDate'][:4]]
+    for doc in parsed:
+        doc['year'] = doc['releaseDate'][:4]
     return render_template('searchRecord.html', nav={
         'home': url_for('home'),
         'add': url_for('renderAddRecord'),
