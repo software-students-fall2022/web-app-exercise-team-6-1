@@ -93,8 +93,6 @@ def getForm(form):
         'lyrics': lyrics
     }
 
-
-
 @app.route('/addRecord', methods=['POST'])
 def postAddRecord():
     form = request.form
@@ -211,250 +209,22 @@ def postDeleteRecord():
 
 @app.route('/searchRecord')
 def renderSearchRecord():
-    # for doc in docs:
-    #     doc['path'] = url_for('renderMusicRecord') + '?mongoId=' + doc.inserted_id
+    query = request.args.get('query', None)
+    if (query == None):
+        docs = db.songs.find()
+    else:
+        #TODO: Fix this to base results on query.
+        docs = db.songs.find()
+
+    parsed = []
+    for doc in docs:
+        doc['path'] = url_for('renderMusicRecord') + '?mongoId=' + doc['_id']
+        parsed += [doc]
     return render_template('searchRecord.html', nav={
         'home': url_for('home'),
         'add': url_for('renderAddRecord'),
         'search': url_for('renderSearchRecord'),
-    })
-
-
-
-
-
-
-# # @app.route('/addRecord')
-# # def addRecord():
-# #     print("Rendering record page")
-
-# #     # #This commented out section is for updateRecord.html
-# #     # obj = {
-# #     #     'title': 'yes',
-# #     #     'writers': 'writer1\nwriter2',
-# #     #     'producers': 'prod1\nprod2',
-# #     #     'genres': 'genre1\ngenre2',
-# #     #     'releaseDate': "01-30-2022",
-# #     #     'lyrics': "ldsfla;sflsj dlsfjl",
-# #     #     'songHours': None,
-# #     #     'songMinutes': None,
-# #     #     'songSeconds': 10,
-# #     #     #This action parameter is where the submission of the form will redirect to.
-# #     #     #Note: postRecord refers to the method name, not the url path.
-# #     #     'action': url_for('postRecord')
-# #     # }
-# #     # #Let form=obj and the updateRecord.html page should render properly
-
-# #     return render_template('addRecord.html', form={'action': url_for('postRecord')}, nav=nav)
-
-# @app.route('/', methods=['POST'])
-# def postRecord():
-#     #print("Entered post record method?")
-#     #print(request.form)
-#     pass
-
-# nav = {
-#     'home': '/',
-#     'add': '/addRecord',
-#     'search': '/searchRecord'
-# }
-
-# #Example below. Basically, for the musicRecord.html, you can construct the nav object like this:
-# newnav = {
-#     'home': '/',
-#     'add': '/addRecord',
-#     'search': '/searchRecord?query=2022%20Dancing',
-#     #When the user clicks on the update link, it will redirect to the /updateRecord method on app.py. Then you can
-#     #  take the mongoId and place it in the hidden field of the form.
-#     'update': '/updateRecord?mongoId=14268493482392',
-#     'delete': '/deleteRecord?mongoId=12987502392839',
-# }
-
-# @app.route('/searchByTitle/<title>')
-# def searchByTitle(title):
-
-#     #Idea used to check that songs are being added to the db:
-#     # Print each song's title, author as a list to the webpage 
-#     # Temporary, just to ensure that db operations are working as intended
-
-#     songs = db.songs.find({"title": title})
-
-#     if (songs.count() == 0):
-#         return "No songs found with that title"
-
-#     print("Printing songs with title: ", title)
-
-#     return songs[0]['title']
-
-# @app.route('/searchByAuthor/<author>')
-# def searchByAuthor(author):
-
-#     songs = db.songs.find({"writers": author})
-
-#     if (songs.count() == 0):
-#         return "No songs found with that author"
-
-#     print(author + " wrote following songs: \n")
-
-#     for song in songs:
-
-#         print(song['title'])
-
-#     return song['writers']
-
-# @app.route('/musicRecord')
-# def musicRecord():
-#     #Search for the record
-    
-#     #Test this, comment one and uncomment the other one
-#     # return render_template('musicRecord.html', exists=False)
-#     return render_template('musicRecord.html', exists=True, nav=newnav)
-
-# # @app.route('/updateRecord/<mongoId>')
-# # def updateRecord(mongoId):
-# #     docs = db.songs.find_one({"_id": ObjectId(mongoId)})
-# #     obj = {
-# #         'title': docs['title'],
-# #         'writers': docs['writers'],
-# #         'producers': docs['producers'],
-# #         'genres': docs['genres'],
-# #         'releaseDate': docs['Release Date'],
-# #         'lyrics': docs['lyrics'],
-# #         'songHours': docs['Song Hours'],
-# #         'songMinutes': docs['Song Minutes'],
-# #         'songSeconds': docs['Song Seconds'],
-# #         #This action parameter is where the submission of the form will redirect to.
-# #         #Note: postRecord refers to the method name, not the url path.
-# #         'action': url_for('postUpdateRecord')
-# #     }
-# #     return render_template('updateRecord.html', form=obj, nav=nav)
-
-# # @app.route('/updateRecord', methods=['POST'])
-# # def postUpdateRecord():
-
-# #     return redirect(url_for('musicRecord'))
-
-# @app.route('/records', methods=['GET'])
-# def getRecords():
-#     """
-#     Route for the records page
-#     """
-
-#     docs = db.songs.find({}).sort("title", 1)  # sort in ascending alphabetical order of title
-#     # convert the cursor to dictionary
-#     for doc in docs:
-
-#         response = {
-#             'title': doc['title'],
-#             'writers': doc['writers'],
-#             'producers': doc['producers'],
-#             'genres': doc['genres'],
-#             'releaseDate': doc['Release Date'],
-#             'lyrics': doc['lyrics'],
-#             'songHours': doc['Song Hours'],
-#             'songMinutes': doc['Song Minutes'],
-#             'songSeconds': doc['Song Seconds'],
-#             'links': doc['Links']
-#         }
-
-#         print(response)
-
-#     return response
-
-
-# @app.route('/deleteRecord')
-# def deleteRecord():
-#     return render_template('deleteRecord.html', form={
-#         'action': url_for('postDeleteRecord'),
-#         'deleteId': 'mongodb id',
-#     }, nav=nav)
-
-# @app.route('/deleteRecord', methods=['POST'])
-# def postDeleteRecord():
-#     print("Positng delete record")
-#     return redirect(url_for('musicRecord'))
-
-# @app.route('/deleteRecord/<title>', methods=['DELETE'])
-# def delete(title):
-#     print("Deleting record id: " + title)
-
-#     try:   # delete the record with the given title from the database
-#          db.songs.delete_one({'title': title})
-
-#     except Exception as e:
-#         print(' *', "Failed to delete record with title: " + title)
-#         print("\n" + e)
-
-#     return "Deleted record id: " + title
-
-
-# # route to accept form submission and create a new post
-# @app.route('/create', methods=['POST'])
-# def create_post():
-#     """
-#     Route for POST requests to the create page.
-#     Accepts the form submission data for a new document and saves the document to the database.
-#     """
-#     name = request.form['fname']
-#     message = request.form['fmessage']
-
-
-#     # create a new document with the data the user entered
-#     doc = {
-#         "name": name,
-#         "message": message, 
-#         "created_at": datetime.datetime.utcnow()
-#     }
-#     db.exampleapp.insert_one(doc) # insert a new document
-
-#     return redirect(url_for('home')) # tell the browser to make a request for the / route (the home function)
-
-
-# # route to view the edit form for an existing post
-# @app.route('/edit/<mongoid>')
-# def edit(mongoid):
-#     """
-#     Route for GET requests to the edit page.
-#     Displays a form users can fill out to edit an existing record.
-#     """
-#     doc = db.exampleapp.find_one({"_id": ObjectId(mongoid)})
-#     return render_template('edit.html', mongoid=mongoid, doc=doc) # render the edit template
-
-
-# # route to accept the form submission to delete an existing post
-# @app.route('/edit/<mongoid>', methods=['POST'])
-# def edit_post(mongoid):
-#     """
-#     Route for POST requests to the edit page.
-#     Accepts the form submission data for the specified document and updates the document in the database.
-#     """
-#     name = request.form['fname']
-#     message = request.form['fmessage']
-
-#     doc = {
-#         # "_id": ObjectId(mongoid), 
-#         "name": name, 
-#         "message": message, 
-#         "created_at": datetime.datetime.utcnow()
-#     }
-
-#     db.exampleapp.update_one(
-#         {"_id": ObjectId(mongoid)}, # match criteria
-#         { "$set": doc }
-#     )
-
-#     return redirect(url_for('home')) # tell the browser to make a request for the / route (the home function)
-
-# # route to delete a specific post
-# @app.route('/delete/<mongoid>')
-# def delete(mongoid):
-#     """
-#     Route for GET requests to the delete page.
-#     Deletes the specified record from the database, and then redirects the browser to the home page.
-#     """
-#     db.exampleapp.delete_one({"_id": ObjectId(mongoid)})
-#     return redirect(url_for('home')) # tell the web browser to make a request for the / route (the home function)
-
+    }, docs=parsed)
 
 # route to handle any errors
 @app.errorhandler(Exception)
