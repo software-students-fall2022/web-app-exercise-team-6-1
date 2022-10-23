@@ -36,67 +36,29 @@ except Exception as e:
     print('Database connection error:', e) # debug
 
 
-#I think that for the update, search, and delete, you could try adding the query, or something to represent
-#Thus, make a speciailzed nav for each method that needs it.
-nav = {
-    'home': '/',
-    'add': '/addRecord',
-    'search': '/searchRecord',
-    # 'update': '/updateRecord',
-    'delete': '/deleteRecord',
-}
-#Example below. Basically, for the musicRecord.html, you can construct the nav object like this:
-newnav = {
-    'home': '/',
-    'add': '/addRecord',
-    'search': '/searchRecord?query=2022%20Dancing',
-    #When the user clicks on the update link, it will redirect to the /updateRecord method on app.py. Then you can
-    #  take the mongoId and place it in the hidden field of the form.
-    'update': '/updateRecord?mongoId=14268493482392',
-    'delete': '/deleteRecord?mongoId=12987502392839',
-}
-
-
 # set up the routes
 
 # route for the home page
 @app.route('/')
 def home():
-    """
-    Route for the home page
-    """
-    
-    # docs = db.exampleapp.find({}).sort("created_at", -1) # sort in descending order of created_at timestamp
-    return render_template('home.html', nav=nav) # render the hone template
+    return render_template('home.html', nav={
+        'home': url_for('home'),
+        'add': url_for('renderAddRecord'),
+        'search': url_for('renderSearchRecord')
+    })
 
 @app.route('/addRecord')
-def addRecord():
-    print("Rendering record page")
+def renderAddRecord():
+    return render_template('addRecord.html', form={
+        'action': url_for('postRecord')
+    }, nav={
+        'home': url_for('home'),
+        'add': url_for('postAddRecord'),
+        'search': url_for('renderSearchRecord')
+    })
 
-    # #This commented out section is for updateRecord.html
-    # obj = {
-    #     'title': 'yes',
-    #     'writers': 'writer1\nwriter2',
-    #     'producers': 'prod1\nprod2',
-    #     'genres': 'genre1\ngenre2',
-    #     'releaseDate': "01-30-2022",
-    #     'lyrics': "ldsfla;sflsj dlsfjl",
-    #     'songHours': None,
-    #     'songMinutes': None,
-    #     'songSeconds': 10,
-    #     #This action parameter is where the submission of the form will redirect to.
-    #     #Note: postRecord refers to the method name, not the url path.
-    #     'action': url_for('postRecord')
-    # }
-    # #Let form=obj and the updateRecord.html page should render properly
-
-    return render_template('addRecord.html', form={'action': url_for('postRecord')}, nav=nav)
-
-@app.route('/', methods=['POST'])
-def postRecord():
-    #print("Entered post record method?")
-    #print(request.form)
-
+@app.route('/addRecord', methods=['POST'])
+def postAddRecord():
     title = request.form['title']
 
     #To Do (Time permitting): Make a more robust way of searching for duplicates
@@ -137,6 +99,51 @@ def postRecord():
         db.songs.insert_one(new_record) #Collection within our database will be called songs from now on
         print("Inserted a new song called: ", new_record['title'])
     return redirect(url_for('home'))
+
+
+
+
+
+@app.route('/addRecord')
+def addRecord():
+    print("Rendering record page")
+
+    # #This commented out section is for updateRecord.html
+    # obj = {
+    #     'title': 'yes',
+    #     'writers': 'writer1\nwriter2',
+    #     'producers': 'prod1\nprod2',
+    #     'genres': 'genre1\ngenre2',
+    #     'releaseDate': "01-30-2022",
+    #     'lyrics': "ldsfla;sflsj dlsfjl",
+    #     'songHours': None,
+    #     'songMinutes': None,
+    #     'songSeconds': 10,
+    #     #This action parameter is where the submission of the form will redirect to.
+    #     #Note: postRecord refers to the method name, not the url path.
+    #     'action': url_for('postRecord')
+    # }
+    # #Let form=obj and the updateRecord.html page should render properly
+
+    return render_template('addRecord.html', form={'action': url_for('postRecord')}, nav=nav)
+
+@app.route('/', methods=['POST'])
+def postRecord():
+    #print("Entered post record method?")
+    #print(request.form)
+
+    
+
+#Example below. Basically, for the musicRecord.html, you can construct the nav object like this:
+newnav = {
+    'home': '/',
+    'add': '/addRecord',
+    'search': '/searchRecord?query=2022%20Dancing',
+    #When the user clicks on the update link, it will redirect to the /updateRecord method on app.py. Then you can
+    #  take the mongoId and place it in the hidden field of the form.
+    'update': '/updateRecord?mongoId=14268493482392',
+    'delete': '/deleteRecord?mongoId=12987502392839',
+}
 
 @app.route('/searchByTitle/<title>')
 def searchByTitle(title):
