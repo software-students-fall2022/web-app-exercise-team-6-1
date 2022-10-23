@@ -10,12 +10,21 @@
 {% endblock %}
 
 {% block content %}
-    <p>
+    <!-- <p>
         In progress. This page should show a list of music records.
         {% block results %} {% endblock %}
-    </p>
-    <p>
+    </p> -->
+    
+    {% for doc in docs%}
+
+        <p class="record">
+            <a href="{{ url_for('musicRecord') }}">{{doc.title}} by {{ doc.writers }}</a>
+        </p>    
+
+    {% endfor %}
+    
+    <!-- <p>
         Then, when the user clicks on a record, we go to this 
         <a href="{{ url_for('musicRecord') }}">link</a>.
-    </p>
+    </p> -->
 {% endblock %}
