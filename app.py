@@ -4,7 +4,6 @@
 from flask import Flask, render_template, request, redirect, url_for, make_response
 from dotenv import dotenv_values
 
-import certifi
 import pymongo
 import datetime
 from bson.objectid import ObjectId
@@ -16,7 +15,6 @@ app = Flask(__name__)
 # load credentials and configuration options from .env file
 # if you do not yet have a file named .env, make one based on the template in env.example
 config = dotenv_values(".env")
-ca = certifi.where()
 
 # turn on debugging if in development mode
 if config['FLASK_ENV'] == 'development':
@@ -25,7 +23,7 @@ if config['FLASK_ENV'] == 'development':
 
 
 # connect to the database
-cxn = pymongo.MongoClient(config['MONGO_URI'], serverSelectionTimeoutMS=5000, tlsCAFile=ca)
+cxn = pymongo.MongoClient(config['MONGO_URI'], serverSelectionTimeoutMS=5000)
 try:
     # verify the connection works by pinging the database
     cxn.admin.command('ping') # The ping command is cheap and does not require auth.
@@ -211,17 +209,24 @@ def postDeleteRecord():
 
 @app.route('/searchRecord')
 def renderSearchRecord():
-    query = request.args.get('query', None)
-    if (query == None):
-        docs = db.songs.find()
+    title = request.args.get('title')
+    writer = request.args.get('writer')
+    producer = request.args.get('producer')
+    if title != None and len(title) != 0:
+        docs = db.songs.find({
+            'title': title,
+        })
     else:
-        #TODO: Fix this to base results on query.
-        docs = db.songs.find()
-
+        docs = db.songs.find({})
     parsed = []
     for doc in docs:
-        doc['path'] = url_for('renderMusicRecord') + '?mongoId=' + doc['_id']
+        doc['path'] = url_for('renderMusicRecord') + '?mongoId=' + str(doc['_id'])
         parsed += [doc]
+    if (writer != None and writer != ""):
+        parsed = [doc for doc in parsed if writer in doc['writers']]
+    if (producer != None and producer != ""):
+        parsed = [doc for doc in parsed if writer in doc['producers']]
+    
     return render_template('searchRecord.html', nav={
         'home': url_for('home'),
         'add': url_for('renderAddRecord'),

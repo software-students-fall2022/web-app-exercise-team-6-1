@@ -9,14 +9,6 @@
 {% endblock %}
 
 {% block content %}
-    {% with messages = get_flashed_messages() %}
-         {% if messages %}
-               {% for message in messages %}
-                    <p>{{ message }}</p>
-               {% endfor %}
-         {% endif %}
-    {% endwith %}
-
     <p>
         We store collections of music records for all users to browse through.
     </p>
