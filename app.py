@@ -63,7 +63,7 @@ def getForm(form):
     #Get the title of the record.
     title = form['title'].strip()
     #Only include writers if we have a non-empty string. Get list of writers.
-    writers = [writer for writer in form['writers'].split('\n') if len(writer) != 0]
+    writers = [writer.strip() for writer in form['writers'].split('\n') if len(writer) != 0]
     #Only include writers if we have a non-empty string. Get list of producers.
     producers = [producer for producer in form['producers'].split('\n') if len(producer) != 0]
     #Only include writers if we have a non-empty string
@@ -220,6 +220,7 @@ def renderSearchRecord():
         docs = db.songs.find({})
     parsed = []
     for doc in docs:
+        print(doc)
         doc['path'] = url_for('renderMusicRecord') + '?mongoId=' + str(doc['_id'])
         parsed += [doc]
     if (writer != None and writer != ""):
