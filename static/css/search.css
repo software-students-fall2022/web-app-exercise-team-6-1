@@ -1,0 +1,21 @@
+.records {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 1rem;
+  }
+
+.record {
+    border: 1px solid black;
+    padding: 1rem;
+  }
+
+  /* article.record .controls {
+    font-size: 12px;
+  } */
+.record.title {
+    font-size: 24px;
+  }
+  /* article.record.writers {
+    font-size: 24px;
+  } */

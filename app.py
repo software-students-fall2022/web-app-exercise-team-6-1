@@ -4,6 +4,7 @@
 from flask import Flask, render_template, request, redirect, url_for, make_response
 from dotenv import dotenv_values
 
+import certifi
 import pymongo
 import datetime
 from bson.objectid import ObjectId
@@ -11,6 +12,7 @@ import sys
 
 # instantiate the app
 app = Flask(__name__)
+ca = certifi.where()
 
 # load credentials and configuration options from .env file
 # if you do not yet have a file named .env, make one based on the template in env.example
@@ -23,7 +25,9 @@ if config['FLASK_ENV'] == 'development':
 
 
 # connect to the database
-cxn = pymongo.MongoClient(config['MONGO_URI'], serverSelectionTimeoutMS=5000)
+#cxn = pymongo.MongoClient("localhost:27017", username="admin", password="secret", authSource="admin")
+#db = cxn['admin']
+cxn = pymongo.MongoClient(config['MONGO_URI'], serverSelectionTimeoutMS=5000, tlsCAFile=ca)
 try:
     # verify the connection works by pinging the database
     cxn.admin.command('ping') # The ping command is cheap and does not require auth.
@@ -86,7 +90,6 @@ def home():
     """
     Route for the home page
     """
-    
     # docs = db.exampleapp.find({}).sort("created_at", -1) # sort in descending order of created_at timestamp
     return render_template('home.html', nav=nav) # render the hone template
 
@@ -165,14 +168,19 @@ def searchRecord():
     #Idea used to check that songs are being added to the db:
     # Print each song's title, author as a list to the webpage 
     # Temporary, just to ensure that db operations are working as intended
-    return render_template('searchRecord.html', nav=nav)
+    docs = db.songs.find()#.sort(1)
+    return render_template('searchRecord.html', nav=nav, docs=docs)
 
 @app.route('/musicRecord')
 def musicRecord():
+    #should take post_id as arg
+
     #Search for the record
     
     #Test this, comment one and uncomment the other one
     # return render_template('musicRecord.html', exists=False)
+    doc = db.songs.find()
+    
     return render_template('musicRecord.html', exists=True, nav=newnav)
 
 @app.route('/updateRecord')
