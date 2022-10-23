@@ -4,6 +4,7 @@
 from flask import Flask, render_template, request, redirect, url_for, make_response
 from dotenv import dotenv_values
 
+import certifi
 import pymongo
 import datetime
 from bson.objectid import ObjectId
@@ -15,6 +16,7 @@ app = Flask(__name__)
 # load credentials and configuration options from .env file
 # if you do not yet have a file named .env, make one based on the template in env.example
 config = dotenv_values(".env")
+ca = certifi.where()
 
 # turn on debugging if in development mode
 if config['FLASK_ENV'] == 'development':
@@ -23,7 +25,7 @@ if config['FLASK_ENV'] == 'development':
 
 
 # connect to the database
-cxn = pymongo.MongoClient(config['MONGO_URI'], serverSelectionTimeoutMS=5000)
+cxn = pymongo.MongoClient(config['MONGO_URI'], serverSelectionTimeoutMS=5000, tlsCAFile=ca)
 try:
     # verify the connection works by pinging the database
     cxn.admin.command('ping') # The ping command is cheap and does not require auth.
@@ -162,10 +164,13 @@ def postRecord():
 @app.route('/searchRecord')
 def searchRecord():
 
+    #query = request.args["query"]
     #Idea used to check that songs are being added to the db:
     # Print each song's title, author as a list to the webpage 
     # Temporary, just to ensure that db operations are working as intended
-    return render_template('searchRecord.html', nav=nav)
+    docs = db.songs.find()
+
+    return render_template('searchRecord.html', nav=nav, docs=docs)
 
 @app.route('/musicRecord')
 def musicRecord():
