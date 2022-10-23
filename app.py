@@ -4,6 +4,7 @@
 from flask import Flask, render_template, request, redirect, url_for, make_response
 from dotenv import dotenv_values
 
+import certifi
 import pymongo
 import datetime
 from bson.objectid import ObjectId
@@ -15,6 +16,7 @@ app = Flask(__name__)
 # load credentials and configuration options from .env file
 # if you do not yet have a file named .env, make one based on the template in env.example
 config = dotenv_values(".env")
+ca = certifi.where()
 
 # turn on debugging if in development mode
 if config['FLASK_ENV'] == 'development':
@@ -23,7 +25,7 @@ if config['FLASK_ENV'] == 'development':
 
 
 # connect to the database
-cxn = pymongo.MongoClient(config['MONGO_URI'], serverSelectionTimeoutMS=5000)
+cxn = pymongo.MongoClient(config['MONGO_URI'], serverSelectionTimeoutMS=5000, tlsCAFile=ca)
 try:
     # verify the connection works by pinging the database
     cxn.admin.command('ping') # The ping command is cheap and does not require auth.
@@ -43,15 +45,10 @@ nav = {
     'add': '/addRecord',
     'search': '/searchRecord',
     # 'update': '/updateRecord',
-    # 'de   lete': '/deleteRecord',
+    # 'delete': '/deleteRecord',
 }
 #Example below. Basically, for the musicRecord.html, you can construct the nav object like this:
 newnav = {
-
-    # From James
-    # Any post request URL should not include any arguments
-    # They should be included in the body section and sent along with the request
-
     'home': '/',
     'add': '/addRecord',
     'search': '/searchRecord?query=2022%20Dancing',
@@ -95,14 +92,33 @@ def home():
     # docs = db.exampleapp.find({}).sort("created_at", -1) # sort in descending order of created_at timestamp
     return render_template('home.html', nav=nav) # render the hone template
 
-@app.route('/addRecord', methods=['GET'])
+@app.route('/addRecord')
 def addRecord():
     print("Rendering record page")
 
+    # #This commented out section is for updateRecord.html
+    # obj = {
+    #     'title': 'yes',
+    #     'writers': 'writer1\nwriter2',
+    #     'producers': 'prod1\nprod2',
+    #     'genres': 'genre1\ngenre2',
+    #     'releaseDate': "01-30-2022",
+    #     'lyrics': "ldsfla;sflsj dlsfjl",
+    #     'songHours': None,
+    #     'songMinutes': None,
+    #     'songSeconds': 10,
+    #     #This action parameter is where the submission of the form will redirect to.
+    #     #Note: postRecord refers to the method name, not the url path.
+    #     'action': url_for('postRecord')
+    # }
+    # #Let form=obj and the updateRecord.html page should render properly
+
     return render_template('addRecord.html', form={'action': url_for('postRecord')}, nav=nav)
 
-@app.route('/addRecord', methods=['POST'])
+@app.route('/', methods=['POST'])
 def postRecord():
+    #print("Entered post record method?")
+    #print(request.form)
 
     title = request.form['title']
 
@@ -142,16 +158,19 @@ def postRecord():
         }
 
         db.songs.insert_one(new_record) #Collection within our database will be called songs from now on
-        print(new_record)
+        print("Inserted a new song called: ", new_record['title'])
     return redirect(url_for('home'))
 
 @app.route('/searchRecord')
 def searchRecord():
 
-    # Idea used to check that songs are being added to the db:
+    #query = request.args["query"]
+    #Idea used to check that songs are being added to the db:
     # Print each song's title, author as a list to the webpage 
     # Temporary, just to ensure that db operations are working as intended
-    return render_template('searchRecord.html', nav=nav)
+    docs = db.songs.find()
+
+    return render_template('searchRecord.html', nav=nav, docs=docs)
 
 @app.route('/musicRecord')
 def musicRecord():
@@ -161,7 +180,7 @@ def musicRecord():
     # return render_template('musicRecord.html', exists=False)
     return render_template('musicRecord.html', exists=True, nav=newnav)
 
-@app.route('/update', methods=['GET'])
+@app.route('/updateRecord')
 def updateRecord():
     obj = {
         'title': 'yes',
@@ -179,22 +198,25 @@ def updateRecord():
     }
     return render_template('updateRecord.html', form=obj, nav=nav)
 
-@app.route('/update', methods=['POST'])
+@app.route('/updateRecord', methods=['POST'])
 def postUpdateRecord():
     print("Entered postUpdateRecord")
     return redirect(url_for('musicRecord'))
 
-@app.route('/delete', methods=['GET'])
+@app.route('/deleteRecord')
 def deleteRecord():
     return render_template('deleteRecord.html', form={
         'action': url_for('postDeleteRecord'),
         'deleteId': 'mongodb id',
     }, nav=nav)
 
-@app.route('/delete', methods=['POST'])
+@app.route('/deleteRecord', methods=['POST'])
 def postDeleteRecord():
-
+    print("Positng delete record")
     return redirect(url_for('musicRecord'))
+
+
+
 # # route to accept form submission and create a new post
 # @app.route('/create', methods=['POST'])
 # def create_post():
@@ -277,5 +299,3 @@ if __name__ == "__main__":
     #import logging
     #logging.basicConfig(filename='/home/ak8257/error.log',level=logging.DEBUG)
     app.run(debug = True)
-    
-
