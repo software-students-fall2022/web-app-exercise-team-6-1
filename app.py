@@ -124,7 +124,8 @@ def updateRecord():
         'songSeconds': 10,
         #This action parameter is where the submission of the form will redirect to.
         #Note: postRecord refers to the method name, not the url path.
-        'action': url_for('postUpdateRecord')
+        'action': url_for('postUpdateRecord'),
+        'mongoId': 'this is the id'
     }
     return render_template('updateRecord.html', form=obj, nav=nav)
 
