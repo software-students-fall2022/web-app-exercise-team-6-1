@@ -57,15 +57,11 @@ def renderAddRecord():
         'search': url_for('renderSearchRecord')
     })
 
-@app.route('/addRecord', methods=['POST'])
-def postAddRecord():
-    form = request.form
-
-    #Debug statement
-    print(form)
-    
+#This method processes _musicForm.html and returns a dictionary with the 
+# parameters to save to the db.
+def getForm(form):
     #Get the title of the record.
-    title = request.form['title'].strip()
+    title = form['title'].strip()
     #Only include writers if we have a non-empty string. Get list of writers.
     writers = [writer for writer in form['writers'].split('\n') if len(writer) != 0]
     #Only include writers if we have a non-empty string. Get list of producers.
@@ -85,14 +81,8 @@ def postAddRecord():
     #Get the links for the song
     links = [link for link in form['links'].split('\n') if len(link) != 0]
     #There is no need to process the lyrics.
-    lyrics = request.form['lyrics']
-
-    print("Starting save operation")
-
-    #Note: We do not need to make sure that the record is unique. If someone adds a non-unique
-    #  record, then it is the job of other users to remove the record (this would be a good
-    #  purpose of the delete function).
-    record = db.songs.insert_one({
+    lyrics = form['lyrics']
+    return {
         'title': title, 
         'writers': writers, 
         'producers': producers, 
@@ -101,7 +91,27 @@ def postAddRecord():
         'duration': duration, 
         'links': links, 
         'lyrics': lyrics
-    })
+    }
+
+
+
+@app.route('/addRecord', methods=['POST'])
+def postAddRecord():
+    form = request.form
+
+    #Debug statement
+    print(form)
+    
+    save = getForm(form)
+
+    print("The dictionary object to save:", save)
+
+    print("Starting save operation")
+
+    #Note: We do not need to make sure that the record is unique. If someone adds a non-unique
+    #  record, then it is the job of other users to remove the record (this would be a good
+    #  purpose of the delete function).
+    record = db.songs.insert_one(save)
 
     #Debug statement
     print("This is whether save opeartion succeeded or not:", record.acknowledged)
@@ -109,40 +119,51 @@ def postAddRecord():
 
     if (record.acknowledged):
         print('Record saved successfully')
-        return redirect(url_for('renderMusicRecord') + '?mongoId=' + record.inserted_id)
+        return redirect(url_for('renderMusicRecord') + '?mongoId=' + str(record.inserted_id))
     else:
         print("The save was not successful")
         raise Exception("The save was not successful")
 
-@app.route('/renderMusicRecord')
+@app.route('/musicRecord')
 def renderMusicRecord():
     mongoId = request.args['mongoId']
     record = db.songs.find_one({'_id': ObjectId(mongoId)})
-    return render_template('musicRecord.html', nav={
-        'home': url_for('home'),
-        'add': url_for('renderAddRecord'),
-        'search': url_for('renderSearchRecord'),
-        'update': url_for('renderUpdateRecord')  + '?mongoId=' + mongoId,
-        'delete': url_for('renderDeleteRecord') + '?mongoId=' + mongoId
-    }, doc=record)
+    if (record):
+        return render_template('musicRecord.html', nav={
+            'home': url_for('home'),
+            'add': url_for('renderAddRecord'),
+            'search': url_for('renderSearchRecord'),
+            'update': url_for('renderUpdateRecord') + '?mongoId=' + mongoId,
+            'delete': url_for('renderDeleteRecord') + '?mongoId=' + mongoId
+        }, doc=record, exists = True)
+    else:
+        return render_template('musicRecord.html', nav={
+            'home': url_for('home'),
+            'add': url_for('renderAddRecord'),
+            'search': url_for('renderSearchRecord')
+        }, exists = False)
 
-@app.route('/renderUpdateRecord')
+@app.route('/updateRecord')
 def renderUpdateRecord():
+    print("Entered render update record method")
     mongoId = request.args['mongoId']
-    record = db.songs.find_one({'_id': ObjectId(mongoId)})
-
+    try:
+        record = db.songs.find_one({'_id': ObjectId(mongoId)})
+    except:
+        raise Exception("Cannot find music record.")
+    print(record)
     form = {
         'mongoId': mongoId,
-        'title': record.title,
-        'writers': '\n'.join(record.writers),
-        'producers': '\n'.join(record.producers),
-        'genres': '\n'.join(record.genres),
-        'releaseDate': record.releaseDate,
-        'songHours': record.duration[:2],
-        'songMinutes': record.duration[3:5],
-        'songSeconds': record.duration[-2:],
-        'links': '\n'.join(record.links),
-        'lyrics': record.lyrics,
+        'title': record['title'],
+        'writers': '\n'.join(record['writers']),
+        'producers': '\n'.join(record['producers']),
+        'genres': '\n'.join(record['genres']),
+        'releaseDate': record['releaseDate'],
+        'songHours': record['duration'][:2],
+        'songMinutes': record['duration'][3:5],
+        'songSeconds': record['duration'][-2:],
+        'links': '\n'.join(record['links']),
+        'lyrics': record['lyrics'],
         'action': url_for('postUpdateRecord')
     }
     return render_template('updateRecord.html', form=form, nav={
@@ -151,6 +172,22 @@ def renderUpdateRecord():
         'search': url_for('renderSearchRecord')
     })
 
+@app.route('/updateRecord', methods=['POST'])
+def postUpdateRecord():
+    print("Entered post update record")
+    form = request.form
+    print(form)
+    print("This is mongoId:", form['mongoId'])
+    update = getForm(form)
+    print(update)
+    db.songs.update_one({
+        '_id': ObjectId(form['mongoId'])
+    }, {
+        '$set': update
+    })
+    print('Update is completed')
+    return redirect(url_for('renderMusicRecord') + '?mongoId=' + form['mongoId'])
+    
 @app.route('/deleteRecord')
 def renderDeleteRecord():
     return render_template('deleteRecord.html', form={
@@ -162,178 +199,193 @@ def renderDeleteRecord():
         'search': url_for('renderSearchRecord')
     })
 
-
-# @app.route('/')
-# def renderSearchRecord():
-#     for doc in docs:
-#         doc['path'] = url_for('renderMusicRecord') + '?mongoId=' + doc.inserted_id
-#     return render_template(url_for(''), docs=[{
-#         title,
-#     },{},{}])
-
-
-
-
-
-
-# @app.route('/addRecord')
-# def addRecord():
-#     print("Rendering record page")
-
-#     # #This commented out section is for updateRecord.html
-#     # obj = {
-#     #     'title': 'yes',
-#     #     'writers': 'writer1\nwriter2',
-#     #     'producers': 'prod1\nprod2',
-#     #     'genres': 'genre1\ngenre2',
-#     #     'releaseDate': "01-30-2022",
-#     #     'lyrics': "ldsfla;sflsj dlsfjl",
-#     #     'songHours': None,
-#     #     'songMinutes': None,
-#     #     'songSeconds': 10,
-#     #     #This action parameter is where the submission of the form will redirect to.
-#     #     #Note: postRecord refers to the method name, not the url path.
-#     #     'action': url_for('postRecord')
-#     # }
-#     # #Let form=obj and the updateRecord.html page should render properly
-
-#     return render_template('addRecord.html', form={'action': url_for('postRecord')}, nav=nav)
-
-@app.route('/', methods=['POST'])
-def postRecord():
-    #print("Entered post record method?")
-    #print(request.form)
-    pass
-
-nav = {}
-
-#Example below. Basically, for the musicRecord.html, you can construct the nav object like this:
-newnav = {
-    'home': '/',
-    'add': '/addRecord',
-    'search': '/searchRecord?query=2022%20Dancing',
-    #When the user clicks on the update link, it will redirect to the /updateRecord method on app.py. Then you can
-    #  take the mongoId and place it in the hidden field of the form.
-    'update': '/updateRecord?mongoId=14268493482392',
-    'delete': '/deleteRecord?mongoId=12987502392839',
-}
-
-@app.route('/searchByTitle/<title>')
-def searchByTitle(title):
-
-    #Idea used to check that songs are being added to the db:
-    # Print each song's title, author as a list to the webpage 
-    # Temporary, just to ensure that db operations are working as intended
-
-    songs = db.songs.find({"title": title})
-
-    if (songs.count() == 0):
-        return "No songs found with that title"
-
-    print("Printing songs with title: ", title)
-
-    return songs[0]['title']
-
-@app.route('/searchByAuthor/<author>')
-def searchByAuthor(author):
-
-    songs = db.songs.find({"writers": author})
-
-    if (songs.count() == 0):
-        return "No songs found with that author"
-
-    print(author + " wrote following songs: \n")
-
-    for song in songs:
-
-        print(song['title'])
-
-    return song['writers']
-
-@app.route('/musicRecord')
-def musicRecord():
-    #Search for the record
-    
-    #Test this, comment one and uncomment the other one
-    # return render_template('musicRecord.html', exists=False)
-    return render_template('musicRecord.html', exists=True, nav=newnav)
-
-@app.route('/updateRecord/<mongoId>')
-def updateRecord(mongoId):
-    docs = db.songs.find_one({"_id": ObjectId(mongoId)})
-    obj = {
-        'title': docs['title'],
-        'writers': docs['writers'],
-        'producers': docs['producers'],
-        'genres': docs['genres'],
-        'releaseDate': docs['Release Date'],
-        'lyrics': docs['lyrics'],
-        'songHours': docs['Song Hours'],
-        'songMinutes': docs['Song Minutes'],
-        'songSeconds': docs['Song Seconds'],
-        #This action parameter is where the submission of the form will redirect to.
-        #Note: postRecord refers to the method name, not the url path.
-        'action': url_for('postUpdateRecord')
-    }
-    return render_template('updateRecord.html', form=obj, nav=nav)
-
-@app.route('/updateRecord', methods=['POST'])
-def postUpdateRecord():
-
-    return redirect(url_for('musicRecord'))
-
-@app.route('/records', methods=['GET'])
-def getRecords():
-    """
-    Route for the records page
-    """
-
-    docs = db.songs.find({}).sort("title", 1)  # sort in ascending alphabetical order of title
-    # convert the cursor to dictionary
-    for doc in docs:
-
-        response = {
-            'title': doc['title'],
-            'writers': doc['writers'],
-            'producers': doc['producers'],
-            'genres': doc['genres'],
-            'releaseDate': doc['Release Date'],
-            'lyrics': doc['lyrics'],
-            'songHours': doc['Song Hours'],
-            'songMinutes': doc['Song Minutes'],
-            'songSeconds': doc['Song Seconds'],
-            'links': doc['Links']
-        }
-
-        print(response)
-
-    return response
-
-
-@app.route('/deleteRecord')
-def deleteRecord():
-    return render_template('deleteRecord.html', form={
-        'action': url_for('postDeleteRecord'),
-        'deleteId': 'mongodb id',
-    }, nav=nav)
-
 @app.route('/deleteRecord', methods=['POST'])
 def postDeleteRecord():
-    print("Positng delete record")
-    return redirect(url_for('musicRecord'))
+    form = request.form
+    print(form)
+    db.songs.delete_one({
+        '_id': ObjectId(form['mongoId'])
+    })
+    return redirect(url_for('renderMusicRecord') + '?mongoId=' + form['mongoId'])
 
-@app.route('/deleteRecord/<title>', methods=['DELETE'])
-def delete(title):
-    print("Deleting record id: " + title)
 
-    try:   # delete the record with the given title from the database
-         db.songs.delete_one({'title': title})
+@app.route('/searchRecord')
+def renderSearchRecord():
+    # for doc in docs:
+    #     doc['path'] = url_for('renderMusicRecord') + '?mongoId=' + doc.inserted_id
+    return render_template('searchRecord.html', nav={
+        'home': url_for('home'),
+        'add': url_for('renderAddRecord'),
+        'search': url_for('renderSearchRecord'),
+    })
 
-    except Exception as e:
-        print(' *', "Failed to delete record with title: " + title)
-        print("\n" + e)
 
-    return "Deleted record id: " + title
+
+
+
+
+# # @app.route('/addRecord')
+# # def addRecord():
+# #     print("Rendering record page")
+
+# #     # #This commented out section is for updateRecord.html
+# #     # obj = {
+# #     #     'title': 'yes',
+# #     #     'writers': 'writer1\nwriter2',
+# #     #     'producers': 'prod1\nprod2',
+# #     #     'genres': 'genre1\ngenre2',
+# #     #     'releaseDate': "01-30-2022",
+# #     #     'lyrics': "ldsfla;sflsj dlsfjl",
+# #     #     'songHours': None,
+# #     #     'songMinutes': None,
+# #     #     'songSeconds': 10,
+# #     #     #This action parameter is where the submission of the form will redirect to.
+# #     #     #Note: postRecord refers to the method name, not the url path.
+# #     #     'action': url_for('postRecord')
+# #     # }
+# #     # #Let form=obj and the updateRecord.html page should render properly
+
+# #     return render_template('addRecord.html', form={'action': url_for('postRecord')}, nav=nav)
+
+# @app.route('/', methods=['POST'])
+# def postRecord():
+#     #print("Entered post record method?")
+#     #print(request.form)
+#     pass
+
+# nav = {
+#     'home': '/',
+#     'add': '/addRecord',
+#     'search': '/searchRecord'
+# }
+
+# #Example below. Basically, for the musicRecord.html, you can construct the nav object like this:
+# newnav = {
+#     'home': '/',
+#     'add': '/addRecord',
+#     'search': '/searchRecord?query=2022%20Dancing',
+#     #When the user clicks on the update link, it will redirect to the /updateRecord method on app.py. Then you can
+#     #  take the mongoId and place it in the hidden field of the form.
+#     'update': '/updateRecord?mongoId=14268493482392',
+#     'delete': '/deleteRecord?mongoId=12987502392839',
+# }
+
+# @app.route('/searchByTitle/<title>')
+# def searchByTitle(title):
+
+#     #Idea used to check that songs are being added to the db:
+#     # Print each song's title, author as a list to the webpage 
+#     # Temporary, just to ensure that db operations are working as intended
+
+#     songs = db.songs.find({"title": title})
+
+#     if (songs.count() == 0):
+#         return "No songs found with that title"
+
+#     print("Printing songs with title: ", title)
+
+#     return songs[0]['title']
+
+# @app.route('/searchByAuthor/<author>')
+# def searchByAuthor(author):
+
+#     songs = db.songs.find({"writers": author})
+
+#     if (songs.count() == 0):
+#         return "No songs found with that author"
+
+#     print(author + " wrote following songs: \n")
+
+#     for song in songs:
+
+#         print(song['title'])
+
+#     return song['writers']
+
+# @app.route('/musicRecord')
+# def musicRecord():
+#     #Search for the record
+    
+#     #Test this, comment one and uncomment the other one
+#     # return render_template('musicRecord.html', exists=False)
+#     return render_template('musicRecord.html', exists=True, nav=newnav)
+
+# # @app.route('/updateRecord/<mongoId>')
+# # def updateRecord(mongoId):
+# #     docs = db.songs.find_one({"_id": ObjectId(mongoId)})
+# #     obj = {
+# #         'title': docs['title'],
+# #         'writers': docs['writers'],
+# #         'producers': docs['producers'],
+# #         'genres': docs['genres'],
+# #         'releaseDate': docs['Release Date'],
+# #         'lyrics': docs['lyrics'],
+# #         'songHours': docs['Song Hours'],
+# #         'songMinutes': docs['Song Minutes'],
+# #         'songSeconds': docs['Song Seconds'],
+# #         #This action parameter is where the submission of the form will redirect to.
+# #         #Note: postRecord refers to the method name, not the url path.
+# #         'action': url_for('postUpdateRecord')
+# #     }
+# #     return render_template('updateRecord.html', form=obj, nav=nav)
+
+# # @app.route('/updateRecord', methods=['POST'])
+# # def postUpdateRecord():
+
+# #     return redirect(url_for('musicRecord'))
+
+# @app.route('/records', methods=['GET'])
+# def getRecords():
+#     """
+#     Route for the records page
+#     """
+
+#     docs = db.songs.find({}).sort("title", 1)  # sort in ascending alphabetical order of title
+#     # convert the cursor to dictionary
+#     for doc in docs:
+
+#         response = {
+#             'title': doc['title'],
+#             'writers': doc['writers'],
+#             'producers': doc['producers'],
+#             'genres': doc['genres'],
+#             'releaseDate': doc['Release Date'],
+#             'lyrics': doc['lyrics'],
+#             'songHours': doc['Song Hours'],
+#             'songMinutes': doc['Song Minutes'],
+#             'songSeconds': doc['Song Seconds'],
+#             'links': doc['Links']
+#         }
+
+#         print(response)
+
+#     return response
+
+
+# @app.route('/deleteRecord')
+# def deleteRecord():
+#     return render_template('deleteRecord.html', form={
+#         'action': url_for('postDeleteRecord'),
+#         'deleteId': 'mongodb id',
+#     }, nav=nav)
+
+# @app.route('/deleteRecord', methods=['POST'])
+# def postDeleteRecord():
+#     print("Positng delete record")
+#     return redirect(url_for('musicRecord'))
+
+# @app.route('/deleteRecord/<title>', methods=['DELETE'])
+# def delete(title):
+#     print("Deleting record id: " + title)
+
+#     try:   # delete the record with the given title from the database
+#          db.songs.delete_one({'title': title})
+
+#     except Exception as e:
+#         print(' *', "Failed to delete record with title: " + title)
+#         print("\n" + e)
+
+#     return "Deleted record id: " + title
 
 
 # # route to accept form submission and create a new post
@@ -410,7 +462,11 @@ def handle_error(e):
     """
     Output any errors - good for debugging.
     """
-    return render_template('error.html', error=e, nav=nav) # render the edit template
+    return render_template('error.html', error=e, nav={
+        'home': url_for('home'),
+        'add': url_for('renderAddRecord'),
+        'search': url_for('renderSearchRecord')
+    }) # render the edit template
 
 
 # run the app
