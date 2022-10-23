@@ -80,46 +80,24 @@ if not ("songs" in db.list_collection_names()):
         db.songs.insert_one(dummy_song)
 # We should replace the above once we have a working db with songs already populating it
 
-
-
-# set up the routes
-
 # route for the home page
 @app.route('/')
 def home():
     """
     Route for the home page
     """
+    
     # docs = db.exampleapp.find({}).sort("created_at", -1) # sort in descending order of created_at timestamp
     return render_template('home.html', nav=nav) # render the hone template
 
-@app.route('/addRecord')
+@app.route('/addRecord', methods=['GET'])
 def addRecord():
     print("Rendering record page")
 
-    # #This commented out section is for updateRecord.html
-    # obj = {
-    #     'title': 'yes',
-    #     'writers': 'writer1\nwriter2',
-    #     'producers': 'prod1\nprod2',
-    #     'genres': 'genre1\ngenre2',
-    #     'releaseDate': "01-30-2022",
-    #     'lyrics': "ldsfla;sflsj dlsfjl",
-    #     'songHours': None,
-    #     'songMinutes': None,
-    #     'songSeconds': 10,
-    #     #This action parameter is where the submission of the form will redirect to.
-    #     #Note: postRecord refers to the method name, not the url path.
-    #     'action': url_for('postRecord')
-    # }
-    # #Let form=obj and the updateRecord.html page should render properly
-
     return render_template('addRecord.html', form={'action': url_for('postRecord')}, nav=nav)
 
-@app.route('/', methods=['POST'])
+@app.route('/addRecord', methods=['POST'])
 def postRecord():
-    #print("Entered post record method?")
-    #print(request.form)
 
     title = request.form['title']
 
@@ -159,31 +137,29 @@ def postRecord():
         }
 
         db.songs.insert_one(new_record) #Collection within our database will be called songs from now on
-        print("Inserted a new song called: ", new_record['title'])
+        print(new_record)
     return redirect(url_for('home'))
 
 @app.route('/searchRecord')
 def searchRecord():
 
-    #Idea used to check that songs are being added to the db:
+    # Idea used to check that songs are being added to the db:
     # Print each song's title, author as a list to the webpage 
     # Temporary, just to ensure that db operations are working as intended
-    docs = db.songs.find()#.sort(1)
+
+    docs = db.songs.find()#.sort(1) 
+
     return render_template('searchRecord.html', nav=nav, docs=docs)
 
 @app.route('/musicRecord')
 def musicRecord():
-    #should take post_id as arg
-
     #Search for the record
     
     #Test this, comment one and uncomment the other one
     # return render_template('musicRecord.html', exists=False)
-    doc = db.songs.find()
-    
     return render_template('musicRecord.html', exists=True, nav=newnav)
 
-@app.route('/updateRecord')
+@app.route('/update', methods=['GET'])
 def updateRecord():
     obj = {
         'title': 'yes',
@@ -201,23 +177,159 @@ def updateRecord():
     }
     return render_template('updateRecord.html', form=obj, nav=nav)
 
-@app.route('/updateRecord', methods=['POST'])
+@app.route('/update', methods=['POST'])
 def postUpdateRecord():
     print("Entered postUpdateRecord")
     return redirect(url_for('musicRecord'))
 
-@app.route('/deleteRecord')
+@app.route('/delete', methods=['GET'])
 def deleteRecord():
     return render_template('deleteRecord.html', form={
         'action': url_for('postDeleteRecord'),
         'deleteId': 'mongodb id',
     }, nav=nav)
 
-@app.route('/deleteRecord', methods=['POST'])
+@app.route('/delete', methods=['POST'])
 def postDeleteRecord():
-    print("Positng delete record")
+
     return redirect(url_for('musicRecord'))
 
+# set up the routes
+
+# # route for the home page
+# @app.route('/')
+# def home():
+#     """
+#     Route for the home page
+#     """
+#     # docs = db.exampleapp.find({}).sort("created_at", -1) # sort in descending order of created_at timestamp
+#     return render_template('home.html', nav=nav) # render the hone template
+
+# @app.route('/addRecord')
+# def addRecord():
+#     print("Rendering record page")
+
+#     # #This commented out section is for updateRecord.html
+#     # obj = {
+#     #     'title': 'yes',
+#     #     'writers': 'writer1\nwriter2',
+#     #     'producers': 'prod1\nprod2',
+#     #     'genres': 'genre1\ngenre2',
+#     #     'releaseDate': "01-30-2022",
+#     #     'lyrics': "ldsfla;sflsj dlsfjl",
+#     #     'songHours': None,
+#     #     'songMinutes': None,
+#     #     'songSeconds': 10,
+#     #     #This action parameter is where the submission of the form will redirect to.
+#     #     #Note: postRecord refers to the method name, not the url path.
+#     #     'action': url_for('postRecord')
+#     # }
+#     # #Let form=obj and the updateRecord.html page should render properly
+
+#     return render_template('addRecord.html', form={'action': url_for('postRecord')}, nav=nav)
+
+# @app.route('/', methods=['POST'])
+# def postRecord():
+#     #print("Entered post record method?")
+#     #print(request.form)
+
+#     title = request.form['title']
+
+#     #To Do (Time permitting): Make a more robust way of searching for duplicates
+#     num_dupe = db.songs.count_documents({"title": title})
+
+#     if num_dupe >= 1:
+#         print("DUPLICATE SONG FOUND, not adding to db")
+
+#         #Until we work out another way to deal with duplicate songs,
+#         # I will just route to home page
+#         # Perhaps we can route to the corresponding page for
+#         # Update/Delete?
+
+#     else:
+#         writers = request.form['writers']
+#         producers = request.form['producers']
+#         genres = request.form['genres']
+#         release_date = request.form['releaseDate']
+#         song_hours = request.form['songHours']
+#         song_minutes = request.form['songMinutes']
+#         song_seconds = request.form['songSeconds']
+#         links = request.form['links']
+#         lyrics = request.form['lyrics']
+
+#         new_record = {
+#             "title": title,
+#             "writers": writers,
+#             "producers": producers,
+#             "genres": genres,
+#             "Release Date": release_date,
+#             "Song Hours": song_hours,
+#             "Song Minutes": song_minutes,
+#             "Song Seconds": song_seconds,
+#             "Links": links,
+#             "lyrics": lyrics
+#         }
+
+#         db.songs.insert_one(new_record) #Collection within our database will be called songs from now on
+#         print("Inserted a new song called: ", new_record['title'])
+#     return redirect(url_for('home'))
+
+# @app.route('/searchRecord')
+# def searchRecord():
+
+#     #Idea used to check that songs are being added to the db:
+#     # Print each song's title, author as a list to the webpage 
+#     # Temporary, just to ensure that db operations are working as intended
+#     docs = db.songs.find()#.sort(1)
+#     return render_template('searchRecord.html', nav=nav, docs=docs)
+
+# @app.route('/musicRecord')
+# def musicRecord():
+#     #should take post_id as arg
+
+#     #Search for the record
+    
+#     #Test this, comment one and uncomment the other one
+#     # return render_template('musicRecord.html', exists=False)
+#     doc = db.songs.find()
+    
+#     return render_template('musicRecord.html', exists=True, nav=newnav)
+
+# @app.route('/updateRecord')
+# def updateRecord():
+#     obj = {
+#         'title': 'yes',
+#         'writers': 'writer1\nwriter2',
+#         'producers': 'prod1\nprod2',
+#         'genres': 'genre1\ngenre2',
+#         'releaseDate': "01-30-2022",
+#         'lyrics': "Sample Lyrics Here",
+#         'songHours': None,
+#         'songMinutes': None,
+#         'songSeconds': 10,
+#         #This action parameter is where the submission of the form will redirect to.
+#         #Note: postRecord refers to the method name, not the url path.
+#         'action': url_for('postUpdateRecord')
+#     }
+#     return render_template('updateRecord.html', form=obj, nav=nav)
+
+# @app.route('/updateRecord', methods=['POST'])
+# def postUpdateRecord():
+#     print("Entered postUpdateRecord")
+#     return redirect(url_for('musicRecord'))
+
+# @app.route('/deleteRecord')
+# def deleteRecord():
+#     return render_template('deleteRecord.html', form={
+#         'action': url_for('postDeleteRecord'),
+#         'deleteId': 'mongodb id',
+#     }, nav=nav)
+
+# @app.route('/deleteRecord', methods=['POST'])
+# def postDeleteRecord():
+#     print("Positng delete record")
+#     return redirect(url_for('musicRecord'))
+# end here
 
 
 # # route to accept form submission and create a new post
