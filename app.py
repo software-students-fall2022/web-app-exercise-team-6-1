@@ -158,8 +158,8 @@ def searchRecord():
     docs = db.songs.find()
 
     return render_template('searchRecord.html', nav=nav, docs=docs)
-        #print("The save was not successful")
-        #raise Exception("The save was not successful")
+        print("The save was not successful")
+        raise Exception("The save was not successful")
 
 @app.route('/musicRecord')
 def renderMusicRecord():
