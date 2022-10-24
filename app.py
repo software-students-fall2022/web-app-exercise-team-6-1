@@ -4,7 +4,6 @@
 from flask import Flask, render_template, request, redirect, url_for, make_response
 from dotenv import dotenv_values
 
-import certifi
 import pymongo
 import datetime
 from bson.objectid import ObjectId
@@ -16,7 +15,6 @@ app = Flask(__name__)
 # load credentials and configuration options from .env file
 # if you do not yet have a file named .env, make one based on the template in env.example
 config = dotenv_values(".env")
-ca = certifi.where()
 
 # turn on debugging if in development mode
 if config['FLASK_ENV'] == 'development':
@@ -25,7 +23,7 @@ if config['FLASK_ENV'] == 'development':
 
 
 # connect to the database
-cxn = pymongo.MongoClient(config['MONGO_URI'], serverSelectionTimeoutMS=5000, tlsCAFile=ca)
+cxn = pymongo.MongoClient(config['MONGO_URI'], serverSelectionTimeoutMS=5000)
 try:
     # verify the connection works by pinging the database
     cxn.admin.command('ping') # The ping command is cheap and does not require auth.
@@ -121,43 +119,6 @@ def postAddRecord():
         print('Record saved successfully')
         return redirect(url_for('renderMusicRecord') + '?mongoId=' + str(record.inserted_id))
     else:
-        writers = request.form['writers']
-        producers = request.form['producers']
-        genres = request.form['genres']
-        release_date = request.form['releaseDate']
-        song_hours = request.form['songHours']
-        song_minutes = request.form['songMinutes']
-        song_seconds = request.form['songSeconds']
-        links = request.form['links']
-        lyrics = request.form['lyrics']
-
-        new_record = {
-            "title": title,
-            "writers": writers,
-            "producers": producers,
-            "genres": genres,
-            "Release Date": release_date,
-            "Song Hours": song_hours,
-            "Song Minutes": song_minutes,
-            "Song Seconds": song_seconds,
-            "Links": links,
-            "lyrics": lyrics
-        }
-
-        db.songs.insert_one(new_record) #Collection within our database will be called songs from now on
-        print("Inserted a new song called: ", new_record['title'])
-    return redirect(url_for('home'))
-
-@app.route('/searchRecord')
-def searchRecord():
-
-    #query = request.args["query"]
-    #Idea used to check that songs are being added to the db:
-    # Print each song's title, author as a list to the webpage 
-    # Temporary, just to ensure that db operations are working as intended
-    docs = db.songs.find()
-
-    return render_template('searchRecord.html', nav=nav, docs=docs)
         print("The save was not successful")
         raise Exception("The save was not successful")
 
