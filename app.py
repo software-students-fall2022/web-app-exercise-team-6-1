@@ -65,9 +65,9 @@ def getForm(form):
     #Only include writers if we have a non-empty string. Get list of writers.
     writers = [writer.strip() for writer in form['writers'].split('\n') if len(writer) != 0]
     #Only include writers if we have a non-empty string. Get list of producers.
-    producers = [producer for producer in form['producers'].split('\n') if len(producer) != 0]
+    producers = [producer.strip() for producer in form['producers'].split('\n') if len(producer) != 0]
     #Only include writers if we have a non-empty string
-    genres = [genre for genre in form['genres'].split('\n') if len(genre) != 0]
+    genres = [genre.strip() for genre in form['genres'].split('\n') if len(genre) != 0]
     #The releaseDate is of type string and is formatted in YYYY-MM-DD
     releaseDate = form['releaseDate']
     #Get the song hours in HH format
@@ -79,7 +79,7 @@ def getForm(form):
     #The duration of the song is HH:MM:SS
     duration = songHours + ':' + songMinutes + ':' + songSeconds    
     #Get the links for the song
-    links = [link for link in form['links'].split('\n') if len(link) != 0]
+    links = [link.strip() for link in form['links'].split('\n') if len(link) != 0]
     #There is no need to process the lyrics.
     lyrics = form['lyrics']
     return {
