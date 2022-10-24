@@ -2,8 +2,7 @@
 
 {% block head %}
     <title>Search Music Records</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/form.css') }}">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/results.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/search.css') }}">
 {% endblock %}
 
 {% block header %}
@@ -28,9 +27,4 @@
         Then, when the user clicks on a record, we go to this 
         <a href="{{ url_for('musicRecord') }}">link</a>.
     </p> -->
-
-    {% include '_searchForm.html' %}
-
-    {% include '_searchResults.html' %}
-
 {% endblock %}
