@@ -1,0 +1,15 @@
+{% for doc in docs%}
+
+    <a href="{{ doc.path }}" class="musicEntry">
+        <p class="title">
+            Title: {{doc.title}}
+        </p>
+        <p>
+            Writers: {{ ", ".join(doc.writers) }}
+        </p>
+        <p>
+            Year: {{ doc.year }}
+        </p>
+    </a>    
+
+{% endfor %}

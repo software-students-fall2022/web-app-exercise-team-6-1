@@ -1,0 +1,51 @@
+
+/*This is the dimensions of the mobile device*/
+body {
+    width: 414px;
+    height: 896px;
+    max-width: 414px;
+    min-height: 896px;
+    overflow-x: hidden;
+    overflow-y: scroll;
+}
+
+h1, h2 {
+    text-align: center;
+}
+
+/*This colors the background of the iphone and adds some padding,
+so that the content could be displayed better.*/
+.container {
+    width: calc(100% - 20px);
+    min-height: calc(100% - 20px);
+    border-radius: 5px;
+    padding: 10px;
+    background-color: lightblue;
+}
+
+header {
+    text-align: center;
+}
+
+nav {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+}
+nav > a {
+    text-decoration: none;
+    font-size: large;
+    padding: 10px;
+    color: darkgreen;
+    border-radius: 5px;
+}
+nav > a:hover {
+    background-color: lightgrey;
+}
+
+/*Set default style for all input and textarea fields.*/
+input, textarea {
+    border-radius: 5px;
+    border-style: solid;
+    border-width: 2px;
+}

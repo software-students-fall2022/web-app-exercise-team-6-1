@@ -1,0 +1,16 @@
+{% extends '_base.html' %}
+
+{% block head %}
+    <title>Delete Music Record</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/form.css') }}">
+{% endblock %}
+
+{% block header %}
+    <h1>Delete Music Record!</h1>
+{% endblock %}
+
+{% block content %}
+    <section>
+        {% include '_deleteForm.html' %}
+    </section>
+{% endblock %}
